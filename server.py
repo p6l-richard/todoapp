@@ -15,7 +15,7 @@ class Todo(db.Model):
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
 
-db.session.create_all()
+db.create_all()
 
 @app.route('/')
 def index():
