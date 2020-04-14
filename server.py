@@ -30,7 +30,7 @@ if not Todo.query.all():
 def index():
     return render_template('index.html', data=Todo.query.all())
 
-@app.route('/new_item', methods=['GET', 'POST'])
+@app.route('/todo/create-new', methods=['GET', 'POST'])
 def new_item():
     if request.form.get('title', None):
         db.session.add(Todo(title=request.form['title'], description=request.form['description']))
