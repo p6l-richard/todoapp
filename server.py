@@ -26,20 +26,9 @@ if not Todo.query.all():
     db.session.bulk_save_objects(todos)
     db.session.commit()
 
-
-
 @app.route('/')
 def index():
-    return render_template('index.html', data=[
-        {
-            "description": "Todo1"
-        }, {
-            "description": "Todo2"
-        }, {
-            "description": "Todo3"
-        }, {
-            "description": "Todo4"
-        }])
+    return render_template('index.html', data=Todo.query.all())
 
 if __name__ == '__main__':
     app.run(debug=True)
