@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -29,6 +29,13 @@ if not Todo.query.all():
 @app.route('/')
 def index():
     return render_template('index.html', data=Todo.query.all())
+
+@app.route('/new_item', methods=['GET', 'POST'])
+def new_item():
+    if request.form.get('title', None):
+        db.session.add(Todo(title=request.form['title'], description=request.form['description']))
+        db.session.commit()
+    return f'Item added to DB:\n{Todo.query.order_by(Todo.id.desc()).limit(1).all()}'
 
 if __name__ == '__main__':
     app.run(debug=True)
