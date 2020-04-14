@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+    <h1>Todos</h1>
+    <ul>
+    {% for todo in data %}
+        <li>{{ todo.description }}</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
