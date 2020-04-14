@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, flash, url_for 
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:234107@localhost:5432/todo_db'
+app.secret_key = 'super secret'
 
 db = SQLAlchemy(app)
 
@@ -35,7 +36,8 @@ def new_item():
     if request.form.get('title', None):
         db.session.add(Todo(title=request.form['title'], description=request.form['description']))
         db.session.commit()
-    return f'Item added to DB:\n{Todo.query.order_by(Todo.id.desc()).limit(1).all()}'
+        flash(f'Item added to DB:\n{Todo.query.order_by(Todo.id.desc()).limit(1).all()}', 'info')
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
