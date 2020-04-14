@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash, url_for 
 from flask_sqlalchemy import SQLAlchemy
 from sys import exc_info
+import json
 
 app = Flask(__name__)
 
@@ -34,23 +35,26 @@ def index():
 
 @app.route('/todo/create-new', methods=['GET', 'POST'])
 def new_item():
-    if request.form.get('title', None):
-        error = False
-        body = {}
-        try:
-
-            db.session.add(Todo(title=request.form['title'], description=request.form['description']))
-            db.session.commit()
-            flash(f'Item added to DB:\n{Todo.query.order_by(Todo.id.desc()).limit(1).all()}', 'info')
-            body = todo.description
-        except:
-            error = True
-            db.session.rollback()
-            print(exc_info())
-        finally:
-            db.session.close()
-        if not error:
-            return redirect(url_for('index'))#body
+    print("NOBODY CAN SEE ME", request.data, request.json, request.values)
+    return 'HI'
+    # if request.get_json():
+    #     record = json.loads(request.get_json())
+    #     error = False
+    #     body = {}
+    #     try:
+    #         db.session.add(Todo(title=record.get('title', None), description=record.get('description', None)))
+    #         db.session.commit()
+    #         flash(f'Item added to DB:\n{Todo.query.order_by(Todo.id.desc()).limit(1).all()}', 'info')
+    #         body = todo.description
+    #     except:
+    #         error = True
+    #         db.session.rollback()
+    #         print(exc_info())
+    #     finally:
+    #         db.session.close()
+    #     if not error:
+    #         return redirect(url_for('index'))
+            #should return body
 
 if __name__ == '__main__':
     app.run(debug=True)

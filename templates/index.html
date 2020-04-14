@@ -25,14 +25,44 @@
     {% endfor %}
     </ul>
     <h2>Create a new to-do</h2>
-    <form action="/todo/create-new" method="POST">
+    <form id="form">
         <label>Title:</label>
         <input type="text" name="title" id="title">
         <label>Description:</label>
-        <input type="text" name="description">
+        <input type="text" name="description" id="description">
         <input type="submit">
 
     </form>
+    <script>
+        document.getElementById('form').onsubmit = function(e) {
+            e.preventDefault();
+            console.log(document.getElementById('title').value)
+            console.log({
+                    'title': document.getElementById('title').value,
+                    'description': document.getElementById('description').value,
+                })
+            // var data = new FormData();
+            // console.log(JSON.stringify( { 
+            //     title: document.getElementById('title').value,
+            //     description: document.getElementById('description').value
+            //     }))
+            // data.append("json", JSON.stringify( { 
+            //     title: document.getElementById('title').value,
+            //     description: document.getElementById('description').value
+            //     })
+            // )
+            fetch('/todo/create-new', {
+                'method': 'POST',
+                'headers': 'Content-Type: application/json',
+                'body': JSON.stringify({
+                    'title': document.getElementById('title').value,
+                    'description': document.getElementById('description').value,
+                })
+            }).then(console.log('OK'))
+        }
+
+        
+    </script>
 
 </body>
 </html>
