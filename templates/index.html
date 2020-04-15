@@ -16,7 +16,7 @@
 </head>
 <body>
     <h1>Todos</h1>
-    <ul>
+    <ul id="todos">
     {% for todo in data %}
         <li>
             <strong>{{ todo.title }}</strong>
@@ -36,29 +36,34 @@
     <script>
         document.getElementById('form').onsubmit = function(e) {
             e.preventDefault();
-            console.log(document.getElementById('title').value)
-            console.log({
-                    'title': document.getElementById('title').value,
-                    'description': document.getElementById('description').value,
-                })
-            // var data = new FormData();
-            // console.log(JSON.stringify( { 
-            //     title: document.getElementById('title').value,
-            //     description: document.getElementById('description').value
-            //     }))
-            // data.append("json", JSON.stringify( { 
-            //     title: document.getElementById('title').value,
-            //     description: document.getElementById('description').value
-            //     })
-            // )
             fetch('/todo/create-new', {
-                'method': 'POST',
-                'headers': 'Content-Type: application/json',
-                'body': JSON.stringify({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
                     'title': document.getElementById('title').value,
                     'description': document.getElementById('description').value,
                 })
-            }).then(console.log('OK'))
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json()
+                } else { 
+                    throw new Error('Something went wrong' + response.status)
+                }
+            })
+            .then(jsonResponse => {
+                const todoNode = document.getElementById('todos');
+                const liNode = document.createElement("li");
+                const headerNode = document.createElement("strong");
+                const pNode = document.createElement("p");
+                headerNode.innerHTML = jsonResponse.data.title
+                pNode.innerHTML = jsonResponse.data.description
+                liNode.appendChild(headerNode)
+                liNode.appendChild(pNode)
+
+                todoNode.appendChild(liNode)
+                })
+            .catch((error) => {console.log(error)})
         }
 
         

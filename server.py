@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, url_for 
+from flask import Flask, render_template, request, redirect, flash, url_for, abort, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sys import exc_info
 import json
@@ -17,6 +17,15 @@ class Todo(db.Model):
 
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
+    
+    @property
+    def serialized(self):
+        """Return object data in serializeable format"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description
+        }
 
 db.create_all()
 
@@ -36,7 +45,26 @@ def index():
 @app.route('/todo/create-new', methods=['GET', 'POST'])
 def new_item():
     print("NOBODY CAN SEE ME", request.data, request.json, request.values)
-    return 'HI'
+    error = False
+    try:
+        todo = Todo(title=request.json.get('title'), description=request.json.get('description'))
+        db.session.add(todo)
+        db.session.commit()
+    except:
+        print('ERROR:', exc_info)
+        error = True
+    finally:
+        db.session.close()
+    if error:
+        db.session.rollback()
+        abort(Response(exc_info))
+    else:
+        record = Todo.query.order_by(Todo.id.desc()).first()
+        return jsonify({
+            'data': record.serialized
+            })
+    
+    
     # if request.get_json():
     #     record = json.loads(request.get_json())
     #     error = False
