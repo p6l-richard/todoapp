@@ -16,7 +16,7 @@
 </head>
 <body>
     <h1>Todos</h1>
-    <ul>
+    <ul id="todos">
     {% for todo in data %}
         <li>
             <strong>{{ todo.title }}</strong>
@@ -25,14 +25,49 @@
     {% endfor %}
     </ul>
     <h2>Create a new to-do</h2>
-    <form action="/todo/create-new" method="POST">
+    <form id="form">
         <label>Title:</label>
         <input type="text" name="title" id="title">
         <label>Description:</label>
-        <input type="text" name="description">
+        <input type="text" name="description" id="description">
         <input type="submit">
 
     </form>
+    <script>
+        document.getElementById('form').onsubmit = function(e) {
+            e.preventDefault();
+            fetch('/todo/create-new', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    'title': document.getElementById('title').value,
+                    'description': document.getElementById('description').value,
+                })
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json()
+                } else { 
+                    throw new Error('Something went wrong' + response.status)
+                }
+            })
+            .then(jsonResponse => {
+                const todoNode = document.getElementById('todos');
+                const liNode = document.createElement("li");
+                const headerNode = document.createElement("strong");
+                const pNode = document.createElement("p");
+                headerNode.innerHTML = jsonResponse.data.title
+                pNode.innerHTML = jsonResponse.data.description
+                liNode.appendChild(headerNode)
+                liNode.appendChild(pNode)
+
+                todoNode.appendChild(liNode)
+                })
+            .catch((error) => {console.log(error)})
+        }
+
+        
+    </script>
 
 </body>
 </html>
