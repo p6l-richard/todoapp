@@ -17,21 +17,22 @@ class Todo(db.Model):
     description = db.Column(db.String(280), nullable=False)
     # status = db.Column(db.Boolean, nullable=False, default=False)
     # usr = db.Column(db.Integer, nullable=False, default=0)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
 
 # db.create_all()
 
-if not Todo.query.all():
-    todos = [
-        Todo(
-            title=f'{i + 1} - thing to do',
-            description=f'The number {i + 1} thing to do for me.'
-        ) for i in range(5)]
-    db.session.bulk_save_objects(todos)
+# if not Todo.query.all():
+#     todos = [
+#         Todo(
+#             title=f'{i + 1} - thing to do',
+#             description=f'The number {i + 1} thing to do for me.'
+#         ) for i in range(5)]
+#     db.session.bulk_save_objects(todos)
 
-db.session.commit()
+# db.session.commit()
 # db.drop_all()
 # db.session.commit()
 
