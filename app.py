@@ -13,8 +13,9 @@ migrate = Migrate(app, db)
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(), unique=True, nullable=False)
+    title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
+    status = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
