@@ -15,8 +15,6 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
-    # status = db.Column(db.Boolean, nullable=False, default=False)
-    # usr = db.Column(db.Integer, nullable=False, default=0)
     completed = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
@@ -30,21 +28,6 @@ class Todo(db.Model):
             'title': self.title,
             'description': self.description
         }
-
-# db.create_all()
-
-# if not Todo.query.all():
-#     todos = [
-#         Todo(
-#             title=f'{i + 1} - thing to do',
-#             description=f'The number {i + 1} thing to do for me.'
-#         ) for i in range(5)]
-#     db.session.bulk_save_objects(todos)
-
-# db.session.commit()
-# db.drop_all()
-# db.session.commit()
-
 
 @app.route('/')
 def index():
@@ -72,25 +55,5 @@ def new_item():
             'data': record.serialized
             })
     
-    
-    # if request.get_json():
-    #     record = json.loads(request.get_json())
-    #     error = False
-    #     body = {}
-    #     try:
-    #         db.session.add(Todo(title=record.get('title', None), description=record.get('description', None)))
-    #         db.session.commit()
-    #         flash(f'Item added to DB:\n{Todo.query.order_by(Todo.id.desc()).limit(1).all()}', 'info')
-    #         body = todo.description
-    #     except:
-    #         error = True
-    #         db.session.rollback()
-    #         print(exc_info())
-    #     finally:
-    #         db.session.close()
-    #     if not error:
-    #         return redirect(url_for('index'))
-            #should return body
-
 if __name__ == '__main__':
     app.run(debug=True)
