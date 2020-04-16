@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:234107@localhost:5432/todo_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:234107@localhost:5432/todo_app'
 app.secret_key = 'super secret'
 
 db = SQLAlchemy(app)
@@ -15,12 +15,13 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
-    status = db.Column(db.Boolean, nullable=False)
+    # status = db.Column(db.Boolean, nullable=False, default=False)
+    # usr = db.Column(db.Integer, nullable=False, default=0)
 
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
 
-db.create_all()
+# db.create_all()
 
 if not Todo.query.all():
     todos = [
@@ -29,7 +30,11 @@ if not Todo.query.all():
             description=f'The number {i + 1} thing to do for me.'
         ) for i in range(5)]
     db.session.bulk_save_objects(todos)
-    db.session.commit()
+
+db.session.commit()
+# db.drop_all()
+# db.session.commit()
+
 
 @app.route('/')
 def index():
