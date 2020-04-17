@@ -16,16 +16,17 @@
 </head>
 <body>
     <h1>Todos</h1>
-    <ul id="todos">
+    <ul id="todos" onChange="handleToggle()">
     {% for todo in data %}
-        <li>
+        <li >
+            <input class="toggle" type="checkbox" id="{{ todo.id }}" name="is_completed" value="{{ todo.id }}" {% if todo.completed %} checked  {% endif %}>
             <strong>{{ todo.title }}</strong>
             <p>{{ todo.description }}</p>
         </li>
     {% endfor %}
     </ul>
     <h2>Create a new to-do</h2>
-    <form id="form">
+    <form id="create_todo">
         <label>Title:</label>
         <input type="text" name="title" id="title">
         <label>Description:</label>
@@ -34,7 +35,12 @@
 
     </form>
     <script>
-        document.getElementById('form').onsubmit = function(e) {
+        function handleToggle() {
+            alert(`I will do a fetch request for ${this} soon.` );
+        }
+    </script>
+    <script>
+        document.getElementById('create_todo').onsubmit = function(e) {
             e.preventDefault();
             fetch('/todo/create-new', {
                 method: 'POST',
@@ -48,26 +54,41 @@
                 if (response.ok) {
                     return response.json()
                 } else { 
+                    alert('Something went wrong', response)
                     throw new Error('Something went wrong' + response.status)
                 }
             })
             .then(jsonResponse => {
                 const todoNode = document.getElementById('todos');
-                const liNode = document.createElement("li");
-                const headerNode = document.createElement("strong");
-                const pNode = document.createElement("p");
-                headerNode.innerHTML = jsonResponse.data.title
-                pNode.innerHTML = jsonResponse.data.description
-                liNode.appendChild(headerNode)
-                liNode.appendChild(pNode)
+
+                const liNode = document.createElement('li');
+                nodesStrings = ['strong', 'p', 'input'];
+                for (nodeString of nodesStrings) {
+                    let node = document.createElement(nodeString);
+                    if (nodeString === 'input') {
+                        node.type = "checkbox"; 
+                        node.name = "is_completed"; 
+                        node.value = jsonResponse.data.id; 
+                        node.id = jsonResponse.data.id; 
+                        node.class ='toggle';
+                        
+                        if (jsonResponse.completed) {
+                            node.checked = True
+                        }
+                    } else if (nodeString === 'strong') {
+                        node.innerHTML = jsonResponse.data.title
+                    } else if (nodeString == 'p') {
+                        node.innerHTML = jsonResponse.data.description
+                    }
+
+                    liNode.appendChild(node)
+                }
 
                 todoNode.appendChild(liNode)
                 })
             .catch((error) => {console.log(error)})
         }
-
         
     </script>
-
 </body>
 </html>

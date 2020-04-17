@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, render_template, request, redirect, flash, url_for, abort, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -42,13 +43,13 @@ def new_item():
         db.session.add(todo)
         db.session.commit()
     except:
-        print('ERROR:', exc_info)
+        print('ERROR:', sys.exc_info)
         error = True
     finally:
         db.session.close()
     if error:
         db.session.rollback()
-        abort(Response(exc_info))
+        abort(Response(sys.exc_info))
     else:
         record = Todo.query.order_by(Todo.id.desc()).first()
         return jsonify({
