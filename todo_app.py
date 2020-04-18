@@ -1,6 +1,7 @@
 import sys
 from flask import Flask, render_template, request, redirect, flash, url_for, abort, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -60,22 +61,19 @@ def new_item():
 @app.route('/todo/update', methods=['POST'])
 def update_item():
     data = request.get_json()
-    error = False
     try:
         todo = Todo.query.get(data['id'])
         todo.completed = data['completed']
         db.session.commit()
-    except:
-        error = True
-    finally:
-        db.session.close()
-    if error:
-        db.session.rollback()
-        abort(Response(sys.exc_info))
-    else: 
         return jsonify({
             'data': Todo.query.get(data['id']).serialized
         })
+    except exc.StatementError as e:
+        db.session.rollback()
+        print('No worries, I have rolled back already, because of:', e.__dict__['orig'])
+        return str(e.__dict__['orig']), 400
+    finally:
+        db.session.close()
     
 if __name__ == '__main__':
     app.run(debug=True)
