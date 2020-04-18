@@ -16,9 +16,9 @@
 </head>
 <body>
     <h1>Todos</h1>
-    <ul id="todos" onChange="handleToggle()">
+    <ul id="todos">
     {% for todo in data %}
-        <li >
+        <li>
             <input class="toggle" type="checkbox" id="{{ todo.id }}" name="is_completed" value="{{ todo.id }}" {% if todo.completed %} checked  {% endif %}>
             <strong>{{ todo.title }}</strong>
             <p>{{ todo.description }}</p>
@@ -35,8 +35,28 @@
 
     </form>
     <script>
+        const checkboxes = document.querySelectorAll('input[type=checkbox]');
+        for (checkbox of checkboxes) {
+            checkbox.onchange = handleToggle;
+        }
         function handleToggle() {
-            alert(`I will do a fetch request for ${this} soon.` );
+            fetch('/todo/update', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    'completed': this.checked,
+                    'id': this.id,
+                    'title': this.nextSibling.nextElementSibling.innerHTML
+                    })
+            }).then((response) => {
+                if (response.ok) {
+                    return response.json()
+                }
+            }).then(jsonResponse => {
+                const checkbox = document.getElementById(jsonResponse.data.id);
+                checkbox.checked = jsonResponse.data.completed
+                alert(`I have updated ${jsonResponse.data.title} to "completed": ${jsonResponse.data.completed}.`);
+            }).catch((err) => {console.log(err)});
         }
     </script>
     <script>
@@ -71,6 +91,7 @@
                         node.value = jsonResponse.data.id; 
                         node.id = jsonResponse.data.id; 
                         node.class ='toggle';
+                        node.onchange = handleToggle;
                         
                         if (jsonResponse.completed) {
                             node.checked = True

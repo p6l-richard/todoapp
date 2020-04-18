@@ -27,7 +27,8 @@ class Todo(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'description': self.description
+            'description': self.description,
+            'completed': self.completed
         }
 
 @app.route('/')
@@ -55,6 +56,26 @@ def new_item():
         return jsonify({
             'data': record.serialized
             })
+
+@app.route('/todo/update', methods=['POST'])
+def update_item():
+    data = request.get_json()
+    error = False
+    try:
+        todo = Todo.query.get(data['id'])
+        todo.completed = data['completed']
+        db.session.commit()
+    except:
+        error = True
+    finally:
+        db.session.close()
+    if error:
+        db.session.rollback()
+        abort(Response(sys.exc_info))
+    else: 
+        return jsonify({
+            'data': Todo.query.get(data['id']).serialized
+        })
     
 if __name__ == '__main__':
     app.run(debug=True)
