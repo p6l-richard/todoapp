@@ -74,6 +74,18 @@ def update_item():
         return str(e.__dict__['orig']), 400
     finally:
         db.session.close()
+
+@app.route('/todo/<todo_id>', methods=['DELETE'])
+def delete_item(todo_id):
+    try:
+        Todo.query.filter_by(id=todo_id).delete()
+        db.session.commit()
+        return 'success', 200
+    except:
+        db.session.rollback()
+        return 'Something went wrong' + str(sys.exc_info()), 200
+    finally:
+        db.session.close()
     
 if __name__ == '__main__':
     app.run(debug=True)

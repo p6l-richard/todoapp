@@ -22,6 +22,7 @@
             <input class="toggle" type="checkbox" id="{{ todo.id }}" name="is_completed" value="{{ todo.id }}" {% if todo.completed %} checked  {% endif %}>
             <strong>{{ todo.title }}</strong>
             <p>{{ todo.description }}</p>
+            <button>&cross;</button>
         </li>
     {% endfor %}
     </ul>
@@ -34,6 +35,36 @@
         <input type="submit">
 
     </form>
+    <script>
+        const buttons = document.querySelectorAll('button');
+        for (button of buttons){
+            button.onclick = handleButtonClick;
+        }
+        function handleButtonClick(){
+            console.log(this.parentNode.childNodes)
+            const siblings = this.parentNode.childNodes;
+            let input;
+            siblings.forEach(element => {
+                if (element.nodeName === 'INPUT') {
+                    input = element;
+                }
+            });
+            const id = input.id || '';
+            console.log(id)
+            if (!!id) {
+                fetch('/todo/' + id, {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (!response.ok) {
+                        throw Error(response.statusText)
+                    } else {
+                        alert('Successfully deleted record');
+                        location.reload()
+                    }
+                })
+            } else {alert('Cannot delete: No id found.')}
+        };
+    </script>
     <script>
         const checkboxes = document.querySelectorAll('input[type=checkbox]');
         for (checkbox of checkboxes) {
@@ -58,7 +89,7 @@
                 alert('an error occurred');
                 console.log('HI',err);
                 this.checked = !this.checked;
-                });
+            });
         }
     </script>
     <script>
