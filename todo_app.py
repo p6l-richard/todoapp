@@ -99,6 +99,24 @@ def new_list():
     finally:
         db.session.close()
 
+@app.route('/lists/update', methods=['POST'])
+def update_list():
+    data = request.get_json()
+    print('REQUEST received')
+    try:
+        todo = Todo.query.get(data['id'])
+        todo.completed = data['completed']
+        db.session.commit()
+        return jsonify({
+            'data': Todo.query.get(data['id']).serialized
+        })
+    except exc.StatementError as e:
+        db.session.rollback()
+        print('No worries, I have rolled back already, because of:', e.__dict__['orig'])
+        return str(e.__dict__['orig']), 400
+    finally:
+        db.session.close()
+
 @app.route('/')
 def index():
     return redirect(url_for('get_list_todos', list_id=1))
@@ -123,6 +141,7 @@ def new_todo():
 @app.route('/todo/update', methods=['POST'])
 def update_todo():
     data = request.get_json()
+    print('REQUEST received')
     try:
         todo = Todo.query.get(data['id'])
         todo.completed = data['completed']
@@ -136,6 +155,7 @@ def update_todo():
         return str(e.__dict__['orig']), 400
     finally:
         db.session.close()
+
 
 @app.route('/todo/<todo_id>', methods=['DELETE'])
 def delete_item(todo_id):

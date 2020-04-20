@@ -82,7 +82,8 @@
             checkbox.onchange = handleToggle;
         }
         function handleToggle() {
-            fetch('/todo/update', {
+            const dir = this.parentNode.id
+            fetch('/' + dir + '/update', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
