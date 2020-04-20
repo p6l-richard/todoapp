@@ -39,6 +39,7 @@ class Lists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
+    is_complete = db.Column(db.Boolean, nullable=False, default=False)
     todo = db.relationship('Todo',
                         cascade='all,delete,delete-orphan',
                         backref='list'

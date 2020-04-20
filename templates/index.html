@@ -19,6 +19,7 @@
     <ul id="lists">
     {% for li in lists %}
         <li id="{{ li.id }}">
+            <input class="toggle" type="checkbox" id="{{ li.id }}" name="is_completed" value="{{ li.id }}" {% if li.completed %} checked  {% endif %}>
             <strong>{{ li.title }}</strong>
             <p>{{ li.description }}</p>
             <button>&cross;</button>
