@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, flash, url_for, abo
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from flask_migrate import Migrate
+from sqlalchemy.orm import backref
 
 app = Flask(__name__)
 
@@ -18,8 +19,9 @@ class Todo(db.Model):
     title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
     completed = db.Column(db.Boolean, nullable=False, default=False)
-    list_id = db.Column(db.Integer, db.ForeignKey('list.id'), nullable=False)
-    
+    list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
+    # li = db.relationship('Lists', backref=backref('todo', cascade="all,delete,delete-orphan"))
+
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
     
@@ -33,11 +35,14 @@ class Todo(db.Model):
             'completed': self.completed
         }
 
-class List(db.Model):
+class Lists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
-    todo = db.relationship('Todo', backref='list', lazy=True)
+    todo = db.relationship('Todo',
+                        cascade='all,delete,delete-orphan',
+                        backref='list'
+                        , lazy=True)
 
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
@@ -51,34 +56,71 @@ class List(db.Model):
             'description': self.description,
         }
 
+@app.route('/lists/<list_id>', methods=['GET', 'DELETE'])
+def lists(list_id):
+    if request.method == 'DELETE':
+        print('Going to delete')
+        return delete_list(list_id)
+    elif request.method == 'GET':
+        return get_list_todos(list_id)
+
+def get_list_todos(list_id):
+    return render_template('index.html', todos=Todo.query.all(), lists=Lists.query.all())
+
+def delete_list(list_id):
+    print('Specifically going to delete', list_id)
+    try:
+        li_todelete = Lists.query.filter_by(id=list_id).first()
+        db.session.delete(li_todelete)
+        db.session.commit()
+        print('Successfully deleted')
+        return 'success', 200
+    except:
+        db.session.rollback()
+        print(sys.exc_info())
+        return 'Something went wrong' + str(sys.exc_info()), 200
+    finally:
+        db.session.close()
+
+@app.route('/lists/create-new', methods=['POST'])
+def new_list():
+    try:
+        li = Lists(title=request.json.get('title'), description=request.json.get('description'))
+        db.session.add(li)
+        db.session.commit()
+        return jsonify({
+            'data': li.serialized
+            })
+    except:
+        print('ERROR:', sys.exc_info())
+        db.session.rollback()
+        return 'Something went wrong, debug: ' + str(sys.exc_info), 200 
+    finally:
+        db.session.close()
+
 @app.route('/')
 def index():
-    return render_template('index.html', data=Todo.query.all())
+    return redirect(url_for('get_list_todos', list_id=1))
 
 @app.route('/todo/create-new', methods=['GET', 'POST'])
-def new_item():
-    print("NOBODY CAN SEE ME", request.data, request.json, request.values)
-    error = False
+def new_todo():
     try:
         todo = Todo(title=request.json.get('title'), description=request.json.get('description'))
         db.session.add(todo)
         db.session.commit()
+        return jsonify({
+            'data': todo.serialized
+            })
     except:
         print('ERROR:', sys.exc_info)
-        error = True
+        db.session.rollback()
+        return 'Something went wrong, debug: ' + str(sys.exc_info), 200 
     finally:
         db.session.close()
-    if error:
-        db.session.rollback()
-        abort(Response(sys.exc_info))
-    else:
-        record = Todo.query.order_by(Todo.id.desc()).first()
-        return jsonify({
-            'data': record.serialized
-            })
+
 
 @app.route('/todo/update', methods=['POST'])
-def update_item():
+def update_todo():
     data = request.get_json()
     try:
         todo = Todo.query.get(data['id'])

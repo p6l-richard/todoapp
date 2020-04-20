@@ -15,10 +15,28 @@
 
 </head>
 <body>
+    <h1>Lists</h1>
+    <ul id="lists">
+    {% for li in lists %}
+        <li id="{{ li.id }}">
+            <strong>{{ li.title }}</strong>
+            <p>{{ li.description }}</p>
+            <button>&cross;</button>
+        </li>
+    {% endfor %}
+    </ul>
+    <h2>Create a new list</h2>
+    <form id="create_list">
+        <label>Title:</label>
+        <input type="text" name="title" id="list_title">
+        <label>Description:</label>
+        <input type="text" name="description" id="list_desc">
+        <input type="submit">
+    </form>
     <h1>Todos</h1>
     <ul id="todos">
-    {% for todo in data %}
-        <li>
+    {% for todo in todos %}
+        <li id="{{ todo.id }}">
             <input class="toggle" type="checkbox" id="{{ todo.id }}" name="is_completed" value="{{ todo.id }}" {% if todo.completed %} checked  {% endif %}>
             <strong>{{ todo.title }}</strong>
             <p>{{ todo.description }}</p>
@@ -29,11 +47,10 @@
     <h2>Create a new to-do</h2>
     <form id="create_todo">
         <label>Title:</label>
-        <input type="text" name="title" id="title">
+        <input type="text" name="title" id="todo_title">
         <label>Description:</label>
-        <input type="text" name="description" id="description">
+        <input type="text" name="description" id="todo_desc">
         <input type="submit">
-
     </form>
     <script>
         const buttons = document.querySelectorAll('button');
@@ -41,18 +58,11 @@
             button.onclick = handleButtonClick;
         }
         function handleButtonClick(){
-            console.log(this.parentNode.childNodes)
-            const siblings = this.parentNode.childNodes;
-            let input;
-            siblings.forEach(element => {
-                if (element.nodeName === 'INPUT') {
-                    input = element;
-                }
-            });
-            const id = input.id || '';
-            console.log(id)
+            const dir = this.parentNode.parentNode.id
+            const id = this.parentNode.id || '';
+            console.log('fetching: /' + dir + '/' + id + ' method: DELETE')
             if (!!id) {
-                fetch('/todo/' + id, {
+                fetch('/' + dir + '/' + id, {
                     method: 'DELETE'
                 }).then(response => {
                     if (!response.ok) {
@@ -99,8 +109,8 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    'title': document.getElementById('title').value,
-                    'description': document.getElementById('description').value,
+                    'title': document.getElementById('todo_title').value,
+                    'description': document.getElementById('todo_desc').value,
                 })
             })
             .then((response) => {
@@ -115,7 +125,7 @@
                 const todoNode = document.getElementById('todos');
 
                 const liNode = document.createElement('li');
-                nodesStrings = ['strong', 'p', 'input'];
+                nodesStrings = ['strong', 'p', 'input', 'button'];
                 for (nodeString of nodesStrings) {
                     let node = document.createElement(nodeString);
                     if (nodeString === 'input') {
@@ -139,6 +149,49 @@
                 }
 
                 todoNode.appendChild(liNode)
+                })
+            .catch((error) => {console.log(error)})
+        }
+        
+    </script>
+    <script>
+        document.getElementById('create_list').onsubmit = function(e) {
+            e.preventDefault();
+            alert('I have been submitted')
+            fetch('/lists/create-new', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    'title': document.getElementById('list_title').value,
+                    'description': document.getElementById('list_desc').value,
+                })
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json()
+                } else { 
+                    alert('Something went wrong', response)
+                    throw new Error('Something went wrong' + response.status)
+                }
+            })
+            .then(jsonResponse => {
+                const listNode = document.getElementById('lists');
+
+                const li = document.createElement('li');
+                nodesStrings = ['strong', 'p', 'button'];
+                for (nodeString of nodesStrings) {
+                    let node = document.createElement(nodeString);
+                    if (nodeString === 'strong') {
+                        node.innerHTML = jsonResponse.data.title
+                    } else if (nodeString == 'p') {
+                        node.innerHTML = jsonResponse.data.description
+                    } else if (nodeString == 'button') {
+                        node.onclick = handleButtonClick;
+                    }
+                    li.appendChild(node)
+                }
+
+                listNode.appendChild(li)
                 })
             .catch((error) => {console.log(error)})
         }
