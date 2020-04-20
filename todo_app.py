@@ -18,7 +18,8 @@ class Todo(db.Model):
     title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
     completed = db.Column(db.Boolean, nullable=False, default=False)
-
+    list_id = db.Column(db.Integer, db.ForeignKey('list.id'), nullable=False)
+    
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
     
@@ -30,6 +31,24 @@ class Todo(db.Model):
             'title': self.title,
             'description': self.description,
             'completed': self.completed
+        }
+
+class List(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(280), nullable=False)
+    todo = db.relationship('Todo', backref='list', lazy=True)
+
+    def __repr__(self):
+        return f'id: {self.id}, title: {self.title}, descr: {self.description}'
+    
+    @property
+    def serialized(self):
+        """Return object data in serializeable format"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
         }
 
 @app.route('/')
