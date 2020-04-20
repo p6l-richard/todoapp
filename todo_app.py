@@ -105,7 +105,7 @@ def update_list():
     print('REQUEST received')
     try:
         todo = Todo.query.get(data['id'])
-        todo.completed = data['completed']
+        todo.completed = data['is_complete']
         db.session.commit()
         return jsonify({
             'data': Todo.query.get(data['id']).serialized
@@ -144,7 +144,7 @@ def update_todo():
     print('REQUEST received')
     try:
         todo = Todo.query.get(data['id'])
-        todo.completed = data['completed']
+        todo.completed = data['is_complete']
         db.session.commit()
         return jsonify({
             'data': Todo.query.get(data['id']).serialized

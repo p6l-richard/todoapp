@@ -19,7 +19,7 @@
     <ul id="lists">
     {% for li in lists %}
         <li id="{{ li.id }}">
-            <input class="toggle" type="checkbox" id="{{ li.id }}" name="is_completed" value="{{ li.id }}" {% if li.completed %} checked  {% endif %}>
+            <input class="toggle" type="checkbox" id="{{ li.id }}" name="is_complete" value="{{ li.id }}" {% if li.is_complete %} checked  {% endif %}>
             <strong>{{ li.title }}</strong>
             <p>{{ li.description }}</p>
             <button>&cross;</button>
@@ -38,7 +38,7 @@
     <ul id="todos">
     {% for todo in todos %}
         <li id="{{ todo.id }}">
-            <input class="toggle" type="checkbox" id="{{ todo.id }}" name="is_completed" value="{{ todo.id }}" {% if todo.completed %} checked  {% endif %}>
+            <input class="toggle" type="checkbox" id="{{ todo.id }}" name="is_complete" value="{{ todo.id }}" {% if todo.is_complete %} checked  {% endif %}>
             <strong>{{ todo.title }}</strong>
             <p>{{ todo.description }}</p>
             <button>&cross;</button>
@@ -87,7 +87,7 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    'completed': this.checked,
+                    'is_complete': this.checked,
                     'id': this.id,
                     'title': this.nextSibling.nextElementSibling.innerHTML
                     })
@@ -96,7 +96,7 @@
             .then(jsonResponse => {
                 const checkbox = document.getElementById(jsonResponse.data.id);
                 
-                alert(`I have updated ${jsonResponse.data.title} to "completed": ${jsonResponse.data.completed}.`);
+                alert(`I have updated ${jsonResponse.data.title} to "is_complete": ${jsonResponse.data.is_complete}.`);
             }).catch((err) => {
                 alert('an error occurred');
                 console.log('HI',err);
@@ -132,13 +132,13 @@
                     let node = document.createElement(nodeString);
                     if (nodeString === 'input') {
                         node.type = "checkbox"; 
-                        node.name = "is_completed"; 
+                        node.name = "is_complete"; 
                         node.value = jsonResponse.data.id; 
                         node.id = jsonResponse.data.id; 
                         node.class ='toggle';
                         node.onchange = handleToggle;
                         
-                        if (jsonResponse.completed) {
+                        if (jsonResponse.is_complete) {
                             node.checked = True
                         }
                     } else if (nodeString === 'strong') {
