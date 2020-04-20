@@ -32,7 +32,7 @@ class Todo(db.Model):
             'id': self.id,
             'title': self.title,
             'description': self.description,
-            'completed': self.completed
+            'is_complete': self.is_complete
         }
 
 class Lists(db.Model):
@@ -55,6 +55,7 @@ class Lists(db.Model):
             'id': self.id,
             'title': self.title,
             'description': self.description,
+            'is_complete': self.is_complete
         }
 
 @app.route('/lists/<list_id>', methods=['GET', 'DELETE'])
@@ -105,7 +106,7 @@ def update_list():
     print('REQUEST received')
     try:
         todo = Todo.query.get(data['id'])
-        todo.completed = data['is_complete']
+        todo.is_complete = data['is_complete']
         db.session.commit()
         return jsonify({
             'data': Todo.query.get(data['id']).serialized
@@ -144,7 +145,7 @@ def update_todo():
     print('REQUEST received')
     try:
         todo = Todo.query.get(data['id'])
-        todo.completed = data['is_complete']
+        todo.is_complete = data['is_complete']
         db.session.commit()
         return jsonify({
             'data': Todo.query.get(data['id']).serialized

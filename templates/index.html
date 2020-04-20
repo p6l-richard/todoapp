@@ -35,7 +35,7 @@
         <input type="submit">
     </form>
     <h1>Todos</h1>
-    <ul id="todos">
+    <ul id="todo">
     {% for todo in todos %}
         <li id="{{ todo.id }}">
             <input class="toggle" type="checkbox" id="{{ todo.id }}" name="is_complete" value="{{ todo.id }}" {% if todo.is_complete %} checked  {% endif %}>
@@ -82,7 +82,8 @@
             checkbox.onchange = handleToggle;
         }
         function handleToggle() {
-            const dir = this.parentNode.id
+            const dir = this.parentNode.parentNode.id
+            console.log(dir)
             fetch('/' + dir + '/update', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -124,7 +125,7 @@
                 }
             })
             .then(jsonResponse => {
-                const todoNode = document.getElementById('todos');
+                const todoNode = document.getElementById('todo');
 
                 const liNode = document.createElement('li');
                 nodesStrings = ['strong', 'p', 'input', 'button'];
