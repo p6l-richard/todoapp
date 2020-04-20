@@ -97,7 +97,7 @@
             .then(jsonResponse => {
                 const checkbox = document.getElementById(jsonResponse.data.id);
                 
-                alert(`I have updated ${jsonResponse.data.title} to "is_complete": ${jsonResponse.data.is_complete}.`);
+                alert(`I have updated the ${dir} "${jsonResponse.data.title}" to "is_complete": ${jsonResponse.data.is_complete}.`);
             }).catch((err) => {
                 alert('an error occurred');
                 console.log('HI',err);

@@ -1,7 +1,7 @@
 import sys
 from flask import Flask, render_template, request, redirect, flash, url_for, abort, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import exc
+from sqlalchemy import exc, event
 from flask_migrate import Migrate
 from sqlalchemy.orm import backref
 
@@ -20,7 +20,6 @@ class Todo(db.Model):
     description = db.Column(db.String(280), nullable=False)
     is_complete = db.Column(db.Boolean, nullable=False, default=False)
     list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
-    # li = db.relationship('Lists', backref=backref('todo', cascade="all,delete,delete-orphan"))
 
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
@@ -44,6 +43,7 @@ class Lists(db.Model):
                         cascade='all,delete,delete-orphan',
                         backref='list'
                         , lazy=True)
+    
 
     def __repr__(self):
         return f'id: {self.id}, title: {self.title}, descr: {self.description}'
@@ -57,6 +57,7 @@ class Lists(db.Model):
             'description': self.description,
             'is_complete': self.is_complete
         }
+
 
 @app.route('/lists/<list_id>', methods=['GET', 'DELETE'])
 def lists(list_id):
@@ -105,11 +106,11 @@ def update_list():
     data = request.get_json()
     print('REQUEST received')
     try:
-        todo = Todo.query.get(data['id'])
-        todo.is_complete = data['is_complete']
+        li = Lists.query.get(data['id'])
+        li.is_complete = data['is_complete']
         db.session.commit()
         return jsonify({
-            'data': Todo.query.get(data['id']).serialized
+            'data': Lists.query.get(data['id']).serialized
         })
     except exc.StatementError as e:
         db.session.rollback()
