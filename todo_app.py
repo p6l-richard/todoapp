@@ -18,7 +18,7 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(280), nullable=False)
-    completed = db.Column(db.Boolean, nullable=False, default=False)
+    is_complete = db.Column(db.Boolean, nullable=False, default=False)
     list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
     # li = db.relationship('Lists', backref=backref('todo', cascade="all,delete,delete-orphan"))
 
