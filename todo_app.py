@@ -22,7 +22,7 @@ class Todo(db.Model):
     list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
 
     def __repr__(self):
-        return f'id: {self.id}, title: {self.title}, descr: {self.description}'
+        return f'id: {self.id}, title: {self.title}, descr: {self.description}, is_complete: {self.is_complete}'
     
     @property
     def serialized(self):
@@ -46,7 +46,7 @@ class Lists(db.Model):
     
 
     def __repr__(self):
-        return f'id: {self.id}, title: {self.title}, descr: {self.description}'
+        return f'id: {self.id}, title: {self.title}, descr: {self.description}, is_complete: {self.is_complete}'
     
     @property
     def serialized(self):
@@ -104,10 +104,13 @@ def new_list():
 @app.route('/lists/update', methods=['POST'])
 def update_list():
     data = request.get_json()
-    print('REQUEST received')
     try:
         li = Lists.query.get(data['id'])
         li.is_complete = data['is_complete']
+        if data['is_complete']:
+            todos = Todo.query.filter_by(list_id=data['id']).all()
+            for todo in todos:
+                todo.is_complete = True
         db.session.commit()
         return jsonify({
             'data': Lists.query.get(data['id']).serialized
